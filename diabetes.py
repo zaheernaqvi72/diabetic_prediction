@@ -16,14 +16,14 @@ def load_data():
     df = pd.read_csv("pima-data.csv")
     return df
 
-data = load_data()
+csv_data = load_data()
 
-data["diabetes"] = data["diabetes"].map({True: 1, False: 0})
+csv_data["diabetes"] = csv_data["diabetes"].map({True: 1, False: 0})
 
 # Define features and labels
 feature_columns = ["num_preg", "glucose_conc", "diastolic_bp", "insulin", "bmi", "diab_pred", "age", "skin"]
-X = data[feature_columns]
-y = data["diabetes"]
+X = csv_data[feature_columns]
+y = csv_data["diabetes"]
 
 # Split dataset
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -87,10 +87,59 @@ if st.button("🔍 Predict Diabetes"):
     else:
         st.success("🎉 No signs of diabetes detected. Keep maintaining a healthy lifestyle!")
 
-# Visualization
-st.subheader("📊 Data Overview")
-st.dataframe(data)
+st.subheader("📊 Complete Dataset Overview")
+st.dataframe(csv_data)
+
+st.subheader("📝 User-Entered Data")
+user_df = pd.DataFrame(data, columns=["num_preg", "glucose_conc", "diastolic_bp", "insulin", "bmi", "diab_pred", "age", "skin thickness"])
+st.dataframe(user_df)
 
 df = load_data()
-fig = px.histogram(df, x="glucose_conc", color="diabetes", barmode="overlay", title="Glucose Levels Distribution")
-st.plotly_chart(fig)
+
+# Histogram: Glucose Levels vs. Diabetes
+fig1 = px.histogram(df, x="glucose_conc", color="diabetes", barmode="overlay", title="Glucose Levels Distribution")
+st.plotly_chart(fig1)
+
+# Histogram: BMI vs. Diabetes
+fig2 = px.histogram(df, x="bmi", color="diabetes", barmode="overlay", title="BMI Distribution")
+st.plotly_chart(fig2)
+
+# Histogram: Age vs. Diabetes
+fig3 = px.histogram(df, x="age", color="diabetes", barmode="overlay", title="Age Distribution")
+st.plotly_chart(fig3)
+
+# Box Plot: Blood Pressure vs. Diabetes
+fig4 = px.box(df, x="diabetes", y="diastolic_bp", color="diabetes", title="Blood Pressure vs. Diabetes")
+st.plotly_chart(fig4)
+
+# Box Plot: Insulin Levels vs. Diabetes
+fig5 = px.box(df, x="diabetes", y="insulin", color="diabetes", title="Insulin Levels vs. Diabetes")
+st.plotly_chart(fig5)
+
+# Scatter Plot: Glucose vs. BMI (Colored by Diabetes)
+fig6 = px.scatter(df, x="glucose_conc", y="bmi", color="diabetes", title="Glucose vs. BMI (Colored by Diabetes)")
+st.plotly_chart(fig6)
+
+# Violin Plot: BMI Distribution by Diabetes Status
+fig7 = px.violin(df, x="diabetes", y="bmi", color="diabetes", title="BMI Distribution by Diabetes Status", box=True)
+st.plotly_chart(fig7)
+
+# Violin Plot: Glucose Concentration Distribution
+fig8 = px.violin(df, x="diabetes", y="glucose_conc", color="diabetes", title="Glucose Concentration Distribution", box=True)
+st.plotly_chart(fig8)
+
+# Pair Plot: Multiple Features Analysis (Scatter matrix)
+st.subheader("Pairwise Feature Relationships")
+selected_features = ["glucose_conc", "bmi", "age", "diastolic_bp", "insulin"]
+fig9 = px.scatter_matrix(df, dimensions=selected_features, color="diabetes", title="Pair Plot of Key Features")
+st.plotly_chart(fig9)
+
+# Heatmap: Correlation Matrix
+st.subheader("Feature Correlation Heatmap")
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+fig10, ax = plt.subplots()
+corr_matrix = df.corr()
+sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", linewidths=0.5, ax=ax)
+st.pyplot(fig10)
